@@ -37,6 +37,9 @@ jobs:
     - name: Checkout to the branch
       uses: actions/checkout@v4
 
+    - name: Print Github Workspace path
+      run: echo $GITHUB_WORKSPACE
+
     - name: Azure Login
       uses: azure/login@v2
       with:
