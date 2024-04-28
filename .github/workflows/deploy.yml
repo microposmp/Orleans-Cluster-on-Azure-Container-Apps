@@ -11,7 +11,7 @@ env:
   RESOURCE_GROUP_NAME: orleans-cluster-on-container-apps
 
   # specify your preferred region
-  REGION: eastus
+  REGION: swedencentral
 
   SILO_DOCKER_FILE_PATH: Silo/Dockerfile
   SILO_IMAGE_NAME: silo
@@ -35,15 +35,15 @@ jobs:
     steps:
 
     - name: Checkout to the branch
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AzureSPN }}
 
     - name: Create resource group
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Creating resource group in Azure"
@@ -52,7 +52,7 @@ jobs:
           az group create -l ${{ env.REGION }} -n ${{ env.RESOURCE_GROUP_NAME }}
 
     - name: Creating resources
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Creating resources"
@@ -67,10 +67,10 @@ jobs:
     steps:
 
     - name: Checkout to the branch
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AzureSPN }}
 
@@ -81,7 +81,7 @@ jobs:
         echo "ACR_LOGIN_SERVER=$ACR_LOGIN_SERVER" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v3
 
     - name: Login to ACR
       run: |
@@ -94,35 +94,35 @@ jobs:
         docker login -u 00000000-0000-0000-0000-000000000000 --password-stdin ${{ env.ACR_LOGIN_SERVER }} <<< "$refresh_token"
 
     - name: Build and push Silo image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.SILO_IMAGE_NAME }}:${{ github.sha }}
         file: ${{ env.SILO_DOCKER_FILE_PATH }}
     
     - name: Build and push Dashboard image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.DASHBOARD_IMAGE_NAME }}:${{ github.sha }}
         file: ${{ env.DASHBOARD_DOCKER_FILE_PATH }}
 
     - name: Build and push Minimal Client image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.MINIMAL_CLIENT_IMAGE_NAME }}:${{ github.sha }}
         file: ${{ env.MINIMAL_CLIENT_DOCKER_FILE_PATH }}
 
     - name: Build and push Worker Service Client image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.WORKERSERVICE_CLIENT_IMAGE_NAME }}:${{ github.sha }}
         file: ${{ env.WORKERSERVICE_CLIENT_DOCKER_FILE_PATH }}
 
     - name: Build and push Scaler image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.SCALER_IMAGE_NAME }}:${{ github.sha }}
@@ -135,15 +135,15 @@ jobs:
     steps:
 
     - name: Checkout to the branch
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AzureSPN }}
 
     - name: Installing Container Apps extension
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Installing containerapp extension"
@@ -159,7 +159,7 @@ jobs:
         echo "ACR_LOGIN_SERVER=$ACR_LOGIN_SERVER" >> $GITHUB_ENV
 
     - name: Deploy Silo
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Deploying Silo"
@@ -169,7 +169,7 @@ jobs:
           az containerapp update -n silo -g ${{ env.RESOURCE_GROUP_NAME }} -i ${{ env.ACR_LOGIN_SERVER }}/${{ env.SILO_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Deploy Dashboard
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Deploying Dashboard"
@@ -179,7 +179,7 @@ jobs:
           az containerapp update -n dashboard -g ${{ env.RESOURCE_GROUP_NAME }} -i ${{ env.ACR_LOGIN_SERVER }}/${{ env.DASHBOARD_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Deploy Minimal API Client
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Deploying Minimal API Client"
@@ -189,7 +189,7 @@ jobs:
           az containerapp update -n minimalapiclient -g ${{ env.RESOURCE_GROUP_NAME }} -i ${{ env.ACR_LOGIN_SERVER }}/${{ env.MINIMAL_CLIENT_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Deploy Worker Service Client
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Deploying Worker Service Client"
@@ -199,7 +199,7 @@ jobs:
           az containerapp update -n workerserviceclient -g ${{ env.RESOURCE_GROUP_NAME }} -i ${{ env.ACR_LOGIN_SERVER }}/${{ env.WORKERSERVICE_CLIENT_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Deploy Scaler
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
         inlineScript: >
           echo "Deploying Scaler"
